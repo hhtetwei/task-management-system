@@ -1,4 +1,4 @@
-// src/auth/auth.controller.ts
+
 import {
     Controller,
     Post,
@@ -8,20 +8,54 @@ import {
     Get,
     UnauthorizedException,
     UseGuards,
+    UseInterceptors,
+    UploadedFile,
   } from '@nestjs/common';
   import { Response, Request } from 'express';
 
   import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto';
+import { LoginUserDto, RegisterUserDto } from './dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { GetCurrentUser } from './decorators/get-current-user.decorators';
+import { Public } from './decorators/public-decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from '../user/user.entity';
 
   
   @Controller('auth')
   export class AuthController {
-    constructor(private auth: AuthService, private jwt: JwtService) {}
+      constructor(private auth: AuthService, private jwt: JwtService) { }
+      
+      @Public()
+      @Post('register')
+      @UseInterceptors(FileInterceptor('profileImage'))
+      async register(
+        @Body() dto: RegisterUserDto,
+        @UploadedFile() profileImage: Express.Multer.File,
+        @Res({ passthrough: true }) res: Response,
+      ) {
+        const user = await this.auth.registerUser({ ...dto, profileImage });
+        const { accessToken, refreshToken } = await this.auth.generateTokens(user);
+    
+        res.cookie('access_token', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 10 * 24 * 60 * 60 * 1000,
+        });
+    
+        res.cookie('refresh_token', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+    
+        return { user, accessToken };
+      }
   
+    @Public()
     @Post('login')
     async login(@Body() dto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
       const user = await this.auth.validateUser(dto.email, dto.password);
@@ -41,7 +75,7 @@ import { GetCurrentUser } from './decorators/get-current-user.decorators';
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
   
-      return { user };
+      return { user, accessToken };
     }
   
     @Post('refresh')
@@ -68,6 +102,11 @@ import { GetCurrentUser } from './decorators/get-current-user.decorators';
         throw new UnauthorizedException('Invalid refresh token');
       }
     }
+
+      @Get('/me')
+  async getMe(@GetCurrentUser() data: User) {
+    return { data };
+  }
   
     @Post('logout')
     async logout(@Res({ passthrough: true }) res: Response) {

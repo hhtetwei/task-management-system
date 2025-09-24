@@ -29,7 +29,7 @@ import { GetCurrentUser } from '../auth/decorators/get-current-user.decorators';
     }
   
     @Get(':id')
-    async getUserById(@Param() id: number) {
+    async getUserById(@Param('id') id: number) {
       return await this.userUseCase.getUserById(id);
     }
   

@@ -26,9 +26,6 @@ export class User {
   @Column({ length: 100, name: 'name' })
   name: string;
 
-  @Column({ length: 100, name: 'surname' })
-  surname: string;
-
   @Column({ length: 100, name: 'phone_number' })
   phoneNumber: string;
 
@@ -50,12 +47,6 @@ export class User {
   @Column({ name: 'profile_image', type: 'json', nullable: true })
   profileImage: Image;
 
-  @Column({ name: 'fcm_token', nullable: true })
-  fcmToken: string;
-
-  @Column({ name: 'has_logged_in', type: 'boolean', default: false })
-  hasLoggedIn: boolean;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
@@ -64,7 +55,4 @@ export class User {
 
   @DeleteDateColumn()
   deletedAt: Date | null;
-
-  @Column({ name: 'logged_in_at', type: 'timestamp', nullable: true })
-  loggedInAt: Date | null;
 }
