@@ -53,11 +53,9 @@ import { UpdateTaskDto } from './dto/update-task.dto';
       return this.taskUseCase.updateTask(id, body, userId);
     }
   
-  
-  
-    // @Delete(':id')
-    // async deleteUser(@Param() { id }: { id: number }) {
-    //   return await this.userUseCase.deleteUser(id);
-    // }
+    @Delete(':id')
+    async deleteUser(@Param() { id }: { id: number }) {
+      return await this.taskUseCase.deleteTask(id);
+    }
   }
   

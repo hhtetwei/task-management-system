@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsDateString, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { TaskPriority, TaskStatus } from '../types';
 
 export class CreateTaskDto {
@@ -18,9 +18,9 @@ export class CreateTaskDto {
   @IsNotEmpty()
   priority: TaskPriority;
     
-  @IsString()
   @IsNotEmpty()
-  dueDate: string;
+  @IsString()
+  dueDate?: string;
     
   @IsString()
   @IsNotEmpty()

@@ -14,6 +14,8 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt.guard';
 import { dataSourceOptions } from './db/data-source';
 import { TaskModule } from './modules/task/task.module';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 
 @Module({
   imports: [
@@ -30,6 +32,7 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
     UserModule,
     AuthModule,
     TaskModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [  {

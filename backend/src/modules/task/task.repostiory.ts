@@ -2,15 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DeepPartial,
-  EntityManager,
-  FindManyOptions,
   FindOneOptions,
-  ILike,
   Repository,
 } from 'typeorm';
 import { Task } from './task.entity';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTaskResponse } from './types';
+
+const ORDERABLE = new Set(['id', 'createdAt', 'updatedAt', 'dueDate', 'priority', 'status']);
 
 @Injectable()
 export class TaskRepository {
@@ -20,37 +19,46 @@ export class TaskRepository {
     return await this.model.save(data);
   }
 
-  async findAllAndCount({
-    search,
-    limit,
-    skip,
-    sort,
-    assigneeId,
-  }: GetTaskDto): Promise<GetTaskResponse> {
-    const where: FindManyOptions<Task>['where'] = [];
+  async findAllAndCount(dto: GetTaskDto): Promise<GetTaskResponse> {
+    const {
+      search,
+      status,
+      priority,
+      assigneeId,
+      page = 1,
+      pageSize = 10,
+      sort = 'id',
+      direction = 'desc',
+    } = dto;
 
-    if (search) {
-      where.push({
-        title: ILike(`%${search}%`),
-      });
+    const qb = this.model
+      .createQueryBuilder('t')
+      .leftJoinAndSelect('t.assignee', 'assignee');
+
+    qb.where('1=1');
+
+    if (search?.trim()) {
+      const q = `%${search.trim().toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(t.title) LIKE :q OR LOWER(t.description) LIKE :q)',
+        { q },
+      );
     }
 
-  if (assigneeId) {
-    where.push({ assigneeId });
-  }
+    if (status) qb.andWhere('t.status = :status', { status });
+    if (priority) qb.andWhere('t.priority = :priority', { priority });
+    if (assigneeId) qb.andWhere('t.assigneeId = :assigneeId', { assigneeId });
 
-    const [data, count] = await this.model.findAndCount({
-      where,
-      take: limit,
-      skip,
-      order: {
-        [sort ?? 'id']: 'desc',
-      },
-      relations: { assignee: true },
-    });
+    const dir = direction.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const column = ORDERABLE.has(sort) ? sort : 'id';
+    qb.orderBy(`t.${column}`, dir);
+    
+    qb.skip((page - 1) * pageSize).take(pageSize);
 
+    const [data, count] = await qb.getManyAndCount();
     return { data, count };
   }
+
 
   async findById(id: number): Promise<Task | null> {
     return this.model.findOne({
