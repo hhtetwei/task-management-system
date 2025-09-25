@@ -4,20 +4,21 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Card, Stack, TextInput, Textarea, Select, Button as MButton } from '@mantine/core';
+import { Card, Stack, TextInput, Textarea, Select } from '@mantine/core'; 
+import 'dayjs/locale/en';
 
 import { Modal } from '@/app/components/ui/modal';
 import { Button } from '@/app/components/ui/button';
 import { toast } from '@/app/libs/toast';
 import { useAuth } from '@/app/auth/auth-provider';
 import { UserType } from '@/app/users/types';
-
-
 import { useCreateTask } from '../api/create-task';
 import { CreateTaskDto, createTaskSchema } from '../schemas/create-task';
-import { useGetUsers } from '../../users/api/get-users';
+import { useGetUsers } from '../../../users/api/get-users';
 import { Priority, Status, Tasks } from '../types';
 import { useUpdateTask } from '../api/update-task';
+import DatePicker from '@/app/components/ui/date-picker';
+import { queryClient } from '@/app/libs/react-query';
 
 export default function TaskForm({
   isOpen,
@@ -31,20 +32,21 @@ export default function TaskForm({
   const isEdit = Boolean(oldData);
 
   const { user } = useAuth();
-  const isAdmin = user?.data?.type === UserType.ADMIN;
+  console.log('Current user:', user);
+  const isAdmin = user?.type === UserType.ADMIN;
+  const currentUserId = user?.id;
 
   const { data: usersPayload, isLoading: isLoadingUsers } = useGetUsers();
   const users =
     usersPayload?.data?.map((u) => ({ label: u.name, value: String(u.id) })) ?? [];
-  
+
     const statusOptions = Object.values(Status).map((type) => ({
-      label: (type),
-      value: type,
+      label: type,
+      value: type, 
     }));
-  
     
     const priorityOptions = Object.values(Priority).map((type) => ({
-      label: (type),
+      label: type,
       value: type,
     }));
 
@@ -56,7 +58,10 @@ export default function TaskForm({
     formState: { errors },
   } = useForm<CreateTaskDto>({
     resolver: zodResolver(createTaskSchema),
-    defaultValues: { status: 'TODO', priority: 'MEDIUM' },
+    defaultValues: {
+      status: Status.TODO,
+      priority: Priority.MEDIUM,
+    } ,
   });
 
   useEffect(() => {
@@ -68,11 +73,11 @@ export default function TaskForm({
         description: oldData.description ?? '',
         status: oldData.status,
         priority: oldData.priority,
-        dueDate: oldData.dueDate ? oldData.dueDate.toString() : undefined,
+        dueDate: oldData.dueDate ? new Date(oldData.dueDate) : (undefined as any),
         assigneeId: oldData.assigneeId,
       });
     } else {
-      reset({ status: 'TODO', priority: 'MEDIUM' });
+      reset({ status: Status.TODO, priority: Priority.MEDIUM });
     }
   }, [isOpen, oldData, reset]);
 
@@ -80,17 +85,32 @@ export default function TaskForm({
   const { mutate: updateTask, isPending: updating } = useUpdateTask();
 
   const onSubmit = handleSubmit((payload) => {
-    const finalPayload: CreateTaskDto = isAdmin
-      ? payload
-      : { ...payload, assigneeId: user?.id };
+    const assigneeId =
+      isAdmin ? payload.assigneeId : currentUserId;
+
+    if (!assigneeId) {
+      toast.error({ message: 'Assignee is required' });
+      return;
+    }
+    const finalPayload = {
+      ...payload,
+      assigneeId: String(assigneeId), 
+      dueDate: payload.dueDate ? new Date(payload.dueDate).toISOString() : undefined,
+    };
 
     if (isEdit && oldData) {
       updateTask(
         { id: oldData.id, data: finalPayload },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['tasks'],
+            });
             toast.success({ message: 'Task updated' });
             close();
+          },
+          onError: (e:any) => {
+            toast.error({ message: e?.response?.data?.message ?? 'Update failed' });
           },
         }
       );
@@ -99,6 +119,9 @@ export default function TaskForm({
         onSuccess: () => {
           toast.success({ message: 'Task created' });
           close();
+        },
+        onError: (e: any) => {
+          toast.error({ message: e?.response?.data?.message ?? 'Create failed' });
         },
       });
     }
@@ -155,6 +178,21 @@ export default function TaskForm({
                   error={errors.priority?.message}
                   withAsterisk
                 />
+              )}
+            />
+
+            <Controller
+              name="dueDate"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                label="Due date"
+                required
+                value={field.value ?? ''}
+                onChange={(v) => field.onChange(v)}
+                error={errors.dueDate?.message}
+                className="relative"
+              />
               )}
             />
 

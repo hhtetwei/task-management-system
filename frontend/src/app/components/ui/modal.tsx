@@ -49,7 +49,7 @@ export const Modal = ({
         <MantineModal.Body>
           <div className="py-4">{children}</div>
           <Group justify="flex-end">
-            {showCloseButton && (
+            {/* {showCloseButton && (
               <Button
                 onClick={(event) => {
                   event.stopPropagation();
@@ -59,7 +59,7 @@ export const Modal = ({
               >
                 {('Cancel')}
               </Button>
-            )}
+            )} */}
             {renderActionButton()}
           </Group>
         </MantineModal.Body>

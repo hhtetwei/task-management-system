@@ -1,21 +1,22 @@
-// app/providers.tsx
+
 'use client'
 
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentUser } from './api/getCurrentUser'
-import type { User } from '@/app/users/types'  // 👈 import your real User
+import { Users } from '../users/types'
+ 
 
-type State = { user: User | null; isLoadingUser: boolean }
+type State = { user: Users | null; isLoadingUser: boolean }
 type Action =
-  | { type: 'LOADED_USER'; payload: User | null }
-  | { type: 'LOGGED_IN'; payload: User }
+  | { type: 'LOADED_USER'; payload: Users | null }
+  | { type: 'LOGGED_IN'; payload: Users }
   | { type: 'LOGGED_OUT' }
 
 const AuthCtx = createContext<{
-  user: User | null
+  user: Users | null
   isLoadingUser: boolean
-  login: (user: User) => void
+  login: (user: Users) => void
   logout: () => Promise<void>
 }>({
   user: null,
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
   }, [])
 
-  const login = (user: User) => {
+  const login = (user: Users) => {
     dispatch({ type: 'LOGGED_IN', payload: user })
   }
 

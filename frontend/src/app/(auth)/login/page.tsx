@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '../../auth/auth-provider'
 import {
   Card,
   Title,
@@ -15,12 +14,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginDto, loginSchema } from './schemas/login'
 import { useLogin } from './api/login'
-import { toast } from '../../libs/toast'
 import { useRouter, useSearchParams } from 'next/navigation'
-
+import { useAuth } from '@/app/auth/auth-provider'
+import { toast } from '@/app/libs/toast'
 
 export default function LoginPage() {
-
   const {
     register,
     handleSubmit,
@@ -31,30 +29,45 @@ export default function LoginPage() {
   })
 
   const router = useRouter()
-  const { mutate,isPending: isLoading } = useLogin();
+  const { mutate, isPending: isLoading } = useLogin();
   const { login: onLogin } = useAuth();
 
   const searchParams = useSearchParams();
-const next = searchParams.get('next') || '/home';
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-
       const loginPayload = { ...data };
 
       mutate(loginPayload, {
-        onSuccess: (data) => {
-          onLogin(data);
+        onSuccess: (response) => {
+          const user = response.user;
+          
+          console.log('Login successful, user:', user); 
+
+          onLogin(user);
           toast.success({
-            message: ('Login Successful!'),
+            message: 'Login Successful!',
           });
-          router.replace(next); 
+          
+          setTimeout(() => {
+            router.replace('/home');
+          }, 100);
+        },
+        onError: (error) => {
+          console.error('Login error:', error);
+          toast.error({
+            message: 'Login failed. Please check your credentials.',
+          });
         },
       });
     } catch (error) {
-      console.error('Error during login and token fetch', error);
+      console.error('Error during login', error);
+      toast.error({
+        message: 'An unexpected error occurred.',
+      });
     }
   });
+
   return (
     <div className="min-h-screen bg-white text-black flex items-center justify-center">
       <Card withBorder className="w-[50%]">
@@ -66,7 +79,6 @@ const next = searchParams.get('next') || '/home';
             Welcome back! Please enter your details.
           </Text>
 
-
           <form onSubmit={onSubmit}>
             <TextInput
               label="Email"
@@ -75,23 +87,19 @@ const next = searchParams.get('next') || '/home';
               radius="md"
               {...register('email')}
               error={errors.email?.message}
-            
-                  
             />
 
-                      <div className='mt-5'>
-                      <PasswordInput
-              label="Password"
-              placeholder="Enter your password"
-              size="md"
-              radius="md"
-              {...register('password')}
+            <div className='mt-5'>
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                size="md"
+                radius="md"
+                {...register('password')}
                 error={errors.password?.message}
                 style={{ marginTop:16 }}
-                  
-              
-            />
-          </div>
+              />
+            </div>
 
             <Button
               type="submit"
@@ -100,7 +108,7 @@ const next = searchParams.get('next') || '/home';
               radius="md"
               color="dark"
               variant="filled"
-                          loading={isLoading}
+              loading={isLoading}
               style={{ marginTop: 20 }}
             >
               Sign in
@@ -109,7 +117,7 @@ const next = searchParams.get('next') || '/home';
 
           <Divider my="xs" />
           <Text size="xs" c="dimmed" ta="center">
-            Don’t have an account? <a href="/register" className="underline">Register</a>
+            Don&apos;t have an account? <a href="/register" className="underline">Register</a>
           </Text>
         </Stack>
       </Card>

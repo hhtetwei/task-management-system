@@ -2,13 +2,13 @@
 import { useMutation } from '@tanstack/react-query';
 
 import { api } from '@/app/libs/axios';
-import { User } from '@/app/users/types';
 import { RegisterDto } from '../schemas/register';
+import { Users } from '@/app/users/types';
 
 export const register = async (data: RegisterDto) =>
   api
     .post<{
-      data: User;
+      data: Users;
       access_token: string;
     }>('/auth/register', data)
     .then((res) => res.data.data);

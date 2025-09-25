@@ -1,5 +1,5 @@
 export enum Status {
-    TO_DO = 'TO_DO',
+    TODO = 'TODO',
     IN_PROGRESS = 'IN_PROGRESS',
     DONE = 'DONE',
 }
@@ -36,6 +36,11 @@ export type Tasks = {
     skip?: number;
     limit?: number;
     search?: string;
+    status?: string;
+    priority?: string;
+    assigneeId?: number;
+    page?: number;
+    pageSize?: number;
   };
   
   

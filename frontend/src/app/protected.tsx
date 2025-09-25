@@ -1,30 +1,51 @@
-
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/app/auth/auth-provider';
 import { LoadingOverlay } from '@mantine/core';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Protected({ children }: { children: React.ReactNode }) {
   const { user, isLoadingUser } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
 
-  const isAuthRoute = pathname?.startsWith('/auth');
+  const publicRoutes = ['/login', '/auth'];
+  const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route));
 
   useEffect(() => {
-    if (isLoadingUser) return;     
-    if (isAuthRoute) return;       
-    if (!user) {
-      const ret = encodeURIComponent(pathname || '/');
-      router.replace(`/auth/login?next=${ret}`);
-    }
-  }, [user, isLoadingUser, router, pathname, isAuthRoute]);
+    console.log('Protected component - Auth state:', { 
+      user, 
+      isLoadingUser, 
+      isPublicRoute, 
+      pathname 
+    });
 
-  if (isAuthRoute) return <>{children}</>;
-  if (isLoadingUser) return <LoadingOverlay visible />;
-  if (!user) return null;
+    if (!isLoadingUser) {
+
+      if (!user && !isPublicRoute) {
+        console.log('Redirecting to login - user not authenticated');
+        router.replace('/login');
+      }
+      
+      if (user && isPublicRoute) {
+        console.log('Redirecting to home - user authenticated on public route');
+        router.replace('/home');
+      }
+    }
+  }, [user, isLoadingUser, isPublicRoute, pathname, router]);
+
+  if (isLoadingUser) {
+    return <LoadingOverlay visible />;
+  }
+
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
+
+  if (!user) {
+    return <LoadingOverlay visible />;
+  }
 
   return <>{children}</>;
 }
