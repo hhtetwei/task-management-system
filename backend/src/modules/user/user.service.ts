@@ -20,7 +20,7 @@ export class UserService {
 
   async createUser(
     data: CreateUserDto & {
-      profileImage: Express.Multer.File
+      profileImage?: Express.Multer.File
       type?: UserType;
     },
   ): Promise<User> {

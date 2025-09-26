@@ -84,11 +84,6 @@ export class AuthController {
     }
   }
 
-  @Get('/me')
-  async getMe(@GetCurrentUser() data: User) {
-    return { data };
-  }
-
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token', { path: '/' });
