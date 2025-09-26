@@ -28,13 +28,18 @@ const AuthCtx = createContext<{
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOADED_USER':
-      return { ...state, isLoadingUser: false, user: action.payload }
+      return { ...state, isLoadingUser: false, user: action.payload };
+
     case 'LOGGED_IN':
-      return { ...state, user: action.payload }
+  
+      return { ...state, isLoadingUser: false, user: action.payload };
+
     case 'LOGGED_OUT':
-      return { ...state, user: null }
+    
+      return { ...state, isLoadingUser: false, user: null };
+
     default:
-      return state
+      return state;
   }
 }
 
@@ -53,8 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = (user: Users) => {
-    dispatch({ type: 'LOGGED_IN', payload: user })
-  }
+    dispatch({ type: 'LOGGED_IN', payload: user });
+  };
 
   const logout = async () => {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {

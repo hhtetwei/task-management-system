@@ -1,6 +1,4 @@
 'use client'
-
-
 import {
     Card,
     Title,
@@ -19,7 +17,6 @@ import { useRegister } from './api/register'
 import { toast } from '@/app/libs/toast'
 import { useAuth } from '@/app/auth/auth-provider'
 
-
 export default function RegisterPage() {
 
     const {
@@ -36,6 +33,7 @@ export default function RegisterPage() {
     const { login: onLogin } = useAuth();
 
     const onSubmit = handleSubmit(async (data) => {
+        console.log('Form data submitted:', data);
         try {
 
             const registerPayload = { ...data };
@@ -44,9 +42,9 @@ export default function RegisterPage() {
                 onSuccess: (data) => {
                     onLogin(data);
                     toast.success({
-                        message: ('Register Successful! Redirecting to Home Page'),
+                        message: ('Register Successful! Please Login'),
                     });
-                    router.push('/');
+                    router.push('/login');
                 },
             });
         } catch (error) {
@@ -67,17 +65,24 @@ export default function RegisterPage() {
 
                     <form onSubmit={onSubmit}>
                         <TextInput
+                            label="Name"
+                            placeholder="Enter your name"
+                            size="md"
+                            radius="md"
+                            {...register('name')}
+                            error={errors.name?.message}
+                        />
+
+                        <TextInput
                             label="Email"
                             placeholder="Enter your email"
                             size="md"
                             radius="md"
                             {...register('email')}
                             error={errors.email?.message}
-
-
                         />
 
-                        <div className='mt-5'>
+                        <div className="mt-5">
                             <PasswordInput
                                 label="Password"
                                 placeholder="Enter your password"
@@ -86,24 +91,14 @@ export default function RegisterPage() {
                                 {...register('password')}
                                 error={errors.password?.message}
                                 style={{ marginTop: 16 }}
-
-
                             />
                         </div>
 
-                        <Button
-                            type="submit"
-                            fullWidth
-                            size="md"
-                            radius="md"
-                            color="dark"
-                            variant="filled"
-                            loading={isLoading}
-                            style={{ marginTop: 20 }}
-                        >
+                        <Button type="submit" fullWidth size="md" radius="md" color="dark" variant="filled" loading={isLoading} style={{ marginTop: 20 }}>
                             Register
                         </Button>
                     </form>
+
 
                     <Divider my="xs" />
                     <Text size="xs" c="dimmed" ta="center">

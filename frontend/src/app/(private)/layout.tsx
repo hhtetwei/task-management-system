@@ -5,7 +5,8 @@ import { AppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 
 import { Topbar } from '../components/topbar';
-import Protected from '../protected';
+import { Protected } from '../protected';
+
 
 
 export default function AppAreaLayout({ children }: { children: React.ReactNode }) {
