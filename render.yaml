@@ -5,12 +5,14 @@ services:
     plan: free
     branch: main
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build
     startCommand: npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "8080"
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"   
       - key: DATABASE_URL
-        value: mysql://USER:PASS@HOST:PORT/DBNAME
+        value: mysql://admin:admin@mysql-db.onrender.com:3306/task-management
