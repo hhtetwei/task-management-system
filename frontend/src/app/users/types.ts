@@ -9,6 +9,7 @@ export type Users = {
   id: number;
   name: string;
   email: string;
+  type: UserType;
 };
 
 export type GetUsersResponse = { data: Users[]; count: number };

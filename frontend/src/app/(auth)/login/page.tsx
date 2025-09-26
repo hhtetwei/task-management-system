@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginDto, loginSchema } from './schemas/login'
 import { useLogin } from './api/login'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/auth/auth-provider'
 import { toast } from '@/app/libs/toast'
 
@@ -32,7 +32,6 @@ export default function LoginPage() {
   const { mutate, isPending: isLoading } = useLogin();
   const { login: onLogin } = useAuth();
 
-  const searchParams = useSearchParams();
 
   const onSubmit = handleSubmit(async (data) => {
     try {

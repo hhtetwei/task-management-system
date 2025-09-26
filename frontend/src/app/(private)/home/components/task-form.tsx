@@ -11,7 +11,7 @@ import { Modal } from '@/app/components/ui/modal';
 import { Button } from '@/app/components/ui/button';
 import { toast } from '@/app/libs/toast';
 import { useAuth } from '@/app/auth/auth-provider';
-import { UserType } from '@/app/users/types';
+import { Users, UserType } from '@/app/users/types';
 import { useCreateTask } from '../api/create-task';
 import { CreateTaskDto, createTaskSchema } from '../schemas/create-task';
 import { useGetUsers } from '../../../users/api/get-users';
@@ -38,7 +38,7 @@ export default function TaskForm({
 
   const { data: usersPayload, isLoading: isLoadingUsers } = useGetUsers();
   const users =
-    usersPayload?.data?.map((u) => ({ label: u.name, value: String(u.id) })) ?? [];
+    usersPayload?.data?.map((u: Users) => ({ label: u.name, value: String(u.id) })) ?? [];
 
     const statusOptions = Object.values(Status).map((type) => ({
       label: type,
