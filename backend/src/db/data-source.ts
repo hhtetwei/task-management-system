@@ -1,23 +1,22 @@
-import dotenv from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { join } from 'path';
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
 
-dotenv.config();
+const DB_SSL = (process.env.DB_SSL ?? 'false').toLowerCase();
+
+const sslOption =
+  DB_SSL === 'true' || DB_SSL === 'require'
+    ? { rejectUnauthorized: false }
+    : undefined;
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'mysql',
   url: process.env.DATABASE_URL ?? '',
-  entities: ['dist/**/*.entity.js'],
-  migrations: ['dist/db/migrations/*.js'],
-  synchronize: ['local', 'testing'].includes(process.env.NODE_ENV ?? ''),
-  ssl: {
-    rejectUnauthorized: ![
-      'local',
-      'testing',
-      'development',
-      'staging',
-    ].includes(process.env.NODE_ENV ?? ''),
-  },
+  entities: [join(__dirname, '..', '**/*.entity.{ts,js}')],
+  migrations: [join(__dirname, 'migrations/*.{ts,js}')],
+  synchronize: false,
+  ssl: sslOption,        
 };
 
-const dataSource = new DataSource(dataSourceOptions);
-export default dataSource;
+export default new DataSource(dataSourceOptions);
