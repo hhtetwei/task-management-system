@@ -126,7 +126,7 @@ export default function TaskBoard({
           {totalCount > 0 && ` (${tasks.length} of ${totalCount})`}
         </Text>
 
-        {tasks.length > 0 ? (
+        {tasks.length ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tasks.map((task: Tasks) => {
               const statusInfo = statusConfig.find(s => s.key === task.status);
