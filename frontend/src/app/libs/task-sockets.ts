@@ -42,7 +42,7 @@ export const useTasksSocket = ({
     console.log('Connecting to:', `${apiUrl}/tasks`);
 
     const socket = io(`${apiUrl}/tasks`, {
-      withCredentials: true, // This is crucial for cookies
+      withCredentials: true, 
       transports: ['websocket', 'polling'],
       timeout: 10000,
       autoConnect: true,
@@ -51,7 +51,6 @@ export const useTasksSocket = ({
 
     socketRef.current = socket;
 
-    // Connection events
     socket.on('connect', () => {
       console.log('✅ Connected to tasks WebSocket, socket ID:', socket.id);
     });
