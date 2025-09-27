@@ -11,10 +11,11 @@ import { UserModule } from './modules/user/user.module';
 
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt.guard';
-import { dataSourceOptions } from './db/data-source';
+
 import { TaskModule } from './modules/task/task.module';
 import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { dataSourceOptions } from './db/data-source';
 
 
 @Module({
@@ -23,12 +24,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       envFilePath: '.env', 
       isGlobal: true,    
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,     
-      synchronize: process.env.NODE_ENV === 'local',
-    }),
+    TypeOrmModule.forRoot({ ...dataSourceOptions, autoLoadEntities: true,  synchronize: false }),
     UserModule,
     AuthModule,
     TaskModule,

@@ -1,22 +1,31 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
-import { join } from 'path';
-import dotenv from 'dotenv';
-dotenv.config({ override: true });
+import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const DB_SSL = (process.env.DB_SSL ?? 'false').toLowerCase();
+import { DataSource } from 'typeorm';
 
-const sslOption =
-  DB_SSL === 'true' || DB_SSL === 'require'
-    ? { rejectUnauthorized: false }
+const isProd = process.env.NODE_ENV === 'production';
+const sslMode = process.env.DB_SSL;
+
+const extra =
+  sslMode === 'required'
+    ? { ssl: { rejectUnauthorized: true } }
+    : sslMode === 'skip-verify'
+    ? { ssl: { rejectUnauthorized: false } }
     : undefined;
 
-export const dataSourceOptions: DataSourceOptions = {
-  type: 'mysql',
-  url: process.env.DATABASE_URL ?? '',
-  entities: [join(__dirname, '..', '**/*.entity.{ts,js}')],
-  migrations: [join(__dirname, 'migrations/*.{ts,js}')],
+export const dataSourceOptions = {
+  type: 'mysql' as const,
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: Number(process.env.DB_PORT || 3306),
+  username: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'test',
+  entities: [isProd ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
+  migrations: [isProd ? 'dist/db/migrations/*.js' : 'src/db/migrations/*.ts'],
   synchronize: false,
-  ssl: sslOption,        
+  extra,
 };
 
-export default new DataSource(dataSourceOptions);
+const AppDataSource = new DataSource(dataSourceOptions);
+export default AppDataSource;

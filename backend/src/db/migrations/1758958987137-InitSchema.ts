@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitSchema1758955761754 implements MigrationInterface {
-    name = 'InitSchema1758955761754'
+export class InitSchema1758958987137 implements MigrationInterface {
+    name = 'InitSchema1758958987137'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE \`users\` (\`id\` int NOT NULL AUTO_INCREMENT, \`email\` varchar(100) NOT NULL, \`password\` varchar(255) NOT NULL, \`salt\` varchar(255) NOT NULL, \`name\` varchar(100) NOT NULL, \`phone_number\` varchar(100) NOT NULL, \`account_status\` enum ('Offline', 'Online') NOT NULL DEFAULT 'Offline', \`type\` enum ('Admin', 'User') NOT NULL, \`profile_image\` json NULL, \`created_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updated_at\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, UNIQUE INDEX \`IDX_97672ac88f789774dd47f7c8be\` (\`email\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);

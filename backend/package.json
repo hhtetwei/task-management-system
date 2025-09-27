@@ -11,14 +11,15 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "seed": "node dist/db/seed/index.js",
+     "seed": "node dist/db/seed/index.js",
     "start:prod": "node dist/main",
     "migrate": "node dist/db/run-migration.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "typeorm": "ts-node -r dotenv/config -r tsconfig-paths/register node_modules/typeorm/cli.js",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-     "test:e2e": "cross-env NODE_ENV=test JWT_SECRET=test-secret jest --config ./jest-e2e.json --runInBand"
+    "test:e2e": "cross-env NODE_ENV=test JWT_SECRET=test-secret jest --config ./jest-e2e.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -43,13 +44,13 @@
     "eventemitter2": "^6.4.9",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "mysql2": "^3.15.0",
+    "mysql2": "^3.15.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
-    "typeorm": "^0.3.26"
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
