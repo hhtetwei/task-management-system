@@ -10,32 +10,33 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { GetCurrentUser } from './decorators/get-current-user.decorators';
 import { Public } from './decorators/public-decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from '../user/user.entity';
 
-const ACCESS_TTL_MS = 60 * 60 * 1000;         
-const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const ACCESS_TTL_MS = 60 * 60 * 1000;                 
+const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;      
 const isProd = process.env.NODE_ENV === 'production';
-const sameSite: 'lax' | 'none' | 'strict' = isProd ? 'lax' : 'lax';
+
+const sameSite: 'lax' | 'none' | 'strict' = isProd ? 'none' : 'lax';
 
 function setAuthCookies(res: Response, accessToken: string, refreshToken?: string) {
   res.cookie('access_token', accessToken, {
     httpOnly: true,
-    secure: isProd,
-    sameSite,
+    secure: isProd,     
+    sameSite,           
     maxAge: ACCESS_TTL_MS,
-    path: '/',
+    path: '/',         
   });
 
   if (refreshToken) {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isProd,
-      sameSite,
+      sameSite,           
       maxAge: REFRESH_TTL_MS,
-      path: '/',
+      path: '/auth/refresh',  
     });
   }
 }
+
 
 @Controller('auth')
 export class AuthController {
@@ -87,10 +88,10 @@ export class AuthController {
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/' });
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
     return { message: 'Logged out' };
   }
-
+  
   @Get('me')
   @UseGuards(JwtAuthGuard)
   async me(@GetCurrentUser() user: any) {
